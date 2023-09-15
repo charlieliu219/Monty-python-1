@@ -59,6 +59,7 @@ class board:
         
     # print_board
     def print_board(self):
+        
         pass
         
     # click
@@ -86,6 +87,11 @@ class board:
 # body of the game
 def play(i, j, x):
     board = board(i, j, x)
+    while True:
+        
+        if board.get_remaining_grids() == 0:
+            return 
+        
     
 # launch the game
 if __name__ == '__main__':
@@ -93,6 +99,7 @@ if __name__ == '__main__':
     j = 8
     x = 8
     play(i, j, x)
+    print("You have won the game!")
     
     
     

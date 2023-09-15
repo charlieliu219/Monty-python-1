@@ -4,12 +4,6 @@
 # [i,j-1]       [i,j]        [i, j+1]
 # [i+1, j-1]    [i+1,j]      [i+1,j+1]
 
-# 2. class grid: 
-# 1. grid_state = 'x' (mine), ' '(init); 
-# true, int(number of x in the nearby 8 grids)(marked) 
-# 2. grid position (int i, j) 
-# 3. is_mine?
-
 # logic (function play):
 # 1. start the game: initiate the board with certain number of x in ramdom board positions, the rest is ' '; 
 # 1.5 check user input: if it's a mine, then end game.
@@ -27,69 +21,89 @@
 # check_remaining_grid(board_self) -> number of grids
 # 
 
-import random 
+import random
+from typing import Any 
+import math
 
-class grid:
-    def __init__(self, i, j, state, is_mine) -> None:
-        self.pos_i = i
-        self.pos_j = j
-        self.grid_state = state 
-        self.is_mine = is_mine
-
+# use list of list of str for the visible board (init: None)
+# use another list of list of boolean for the minefield_map 
+# always keep the two boards sync
 class board:
     def __init__(self, i, j, x) -> None:
+        self.length = i
+        self.width = j
+        self.board = self.make_board(i, j)
+        self.mine_map = self.plant_mine(i, j, x)
+                    
+    def make_board(self, i, j):
         # initiate the board with all clear grids
-        for ii in range(i):
-            for jj in range(j):
-                board[ii][jj] =  grid(ii, jj, ' ', False) 
+        board = [['_' for jj in range(j)] for ii in range(i)]
         
-        # add x number of mines to unique random positions on the board
+        return board
+    def plant_mine(self, i, j, x):
         if x > j * i:
             raise Exception("There must be more grids than mines!")
         
+        mine_map = [[False for jj in range(j)] for ii in range(i)]
+        
+        # add x number of mines to unique random positions on the board
         mine_i = random.sample(range(0, i), x)
         mine_j = random.sample(range(0, j), x)
+        counter = 0
         for ii in mine_i:
-            for jj in mine_j:  
-                board[ii][jj] = grid(ii, jj, 'x', True)
+            jj = mine_j[counter]
+            counter+=1
+            mine_map[ii][jj] = True
             
-    # get the grid with its coordinates
-    def get_grid(self, i, j):
-        return board[i][j] # class grid
-        
-    # print_board
+        return mine_map
+              
+    # print_board: remember to update
     def print_board(self):
-        
-        pass
+        for i in range(self.length):
+            for j in range(self.width):
+                if self.mine_map[i][j] == True:
+                    print(' | ' + '* ', end = " ")
+                else:
+                    print(' | ' + self.board[i][j], end = " ")
+            print('\n')
         
     # click
     def click(self, i, j):
+        # base case 1
+        if self.is_mine(i, j):
+            print("Booooooooooom")
+            return math.inf
+        
         num_mine = 0
         return num_mine
     
-    
     # is_mine? 
     def is_mine(self, i, j):
+        if self.mine_map[i][j] == True:
+            return True
         return False
     
-    # number of remaining_grid
-    def get_remaining_grids(self):
-        
-        remaining_grids = 0
-        print("You have cleared the minefiled!")
-        return remaining_grids
+    # check_clear: if all the grids in boolean map is true, then win
+    def check_win(self):
+        for i in range(self.length):
+            for j in range(self.width):
+                if self.board[i][j] == '_':
+                    return False
+        return True
     
-    # update grid_state: what should the datatype of state be?
-    def update_state(self, i, j, state):
-        self[i][j].grid_state = state
-        return grid
+    # update the visible board: all clear = 0? or number of neighboring mines? 
+    # update the boolean map: if a grid is updated, mark it as true
+    def update_state(self, i, j):
+        pass
     
 # body of the game
 def play(i, j, x):
-    board = board(i, j, x)
+    game = board(i, j, x)
+    game.print_board()
+    game.check_win()
     while True:
         
-        if board.get_remaining_grids() == 0:
+        if board.check_win:
             return 
         
     
@@ -97,9 +111,12 @@ def play(i, j, x):
 if __name__ == '__main__':
     i = 8
     j = 8
-    x = 8
+    x = 4
+    
     play(i, j, x)
-    print("You have won the game!")
+    
+    
+    print("You passed the test!!")
     
     
     
